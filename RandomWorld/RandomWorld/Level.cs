@@ -80,13 +80,13 @@ namespace RandomWorld
                 if (isValid)
                 {
                     finishedRooms++;
-                    Console.WriteLine("This is how many ROOMS");
+                    //Console.WriteLine("This is how many ROOMS");
                     roomList.Add(newRoom);
                     SetGameBoard(newRoom, GameBoard, content);
                 }
                 else
                 {
-                    Console.WriteLine("Invalid ROOM");
+                    //Console.WriteLine("Invalid ROOM");
                 }
  
             }
@@ -140,12 +140,11 @@ namespace RandomWorld
         }
         public void SetGameBoard(Room room, Sprite[,] gameBoard, ContentManager content)
         {
-
-            for (int x = room.start_X; x <= room.Size_X; x++)
+            for (int x = room.start_X; x < (room.Size_X + room.start_X); x++)
             {
-                for (int y = room.start_Y; y <= room.Size_Y; y++)
+                for (int y = room.start_Y; y < (room.Size_Y + room.start_Y); y++)
                 {
-                    if (room._room[x, y] != 0)
+                    if (room._room[x,y] != 0)
                     {
                         tiles = new Sprite("FloorTiles", content);
                         GameBoard[x, y] = tiles;
@@ -154,6 +153,7 @@ namespace RandomWorld
                     }
                 }
             }
+           
         }
  
     }
