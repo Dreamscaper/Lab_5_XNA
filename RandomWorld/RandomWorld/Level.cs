@@ -14,9 +14,9 @@ namespace RandomWorld
 {
     class Level : Structure
     {
-        public const int MAX_TILES_X = 16;
-        public const int MAX_TILES_Y = 12;
-        public const int SPRITE_SIZE = 40;
+        public const int MAX_TILES_X = 20; //The maximum amount of blocks on the X axis
+        public const int MAX_TILES_Y = 12; //The maximum amount of blocks on the X axis
+        public const int SPRITE_SIZE = 40; //The size of each block
 
         public struct Room
         {
@@ -24,11 +24,11 @@ namespace RandomWorld
             public int Size_X;
             public int Size_Y;
 
-            //public int X_Mid;
-            //public int Y_Mid;
-
             public int start_X;
             public int start_Y;
+
+            //public int X_Mid;
+            //public int Y_Mid;
         }
       
         Room newRoom;
@@ -40,11 +40,20 @@ namespace RandomWorld
 
         List<Room> roomList = new List<Room>();
         Sprite tiles;
-
+        
         bool isValid;
 
+        public int new_Size_X;
+        public int new_Size_Y;
+        public int new_start_X;
+        public int new_start_Y;
+        public int loadingTimer = 0;
+        public int[,] newArray = new int[MAX_TILES_X, MAX_TILES_Y];
+ 
         public Level()
         {
+            newRoom = new Room();
+            newRoom._room = new int[MAX_TILES_X, MAX_TILES_Y];
         }
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
@@ -65,33 +74,58 @@ namespace RandomWorld
         public override void Load(ContentManager content)
         {
 
-            numofRooms = rand.Next(5, 8);
+            numofRooms = rand.Next(4, 6);
             finishedRooms = 0;
+
             while (finishedRooms < numofRooms)
             {
-                newRoom = new Room();
-                newRoom._room = new int[MAX_TILES_X, MAX_TILES_Y];
-                ClearArray(newRoom._room);
-                newRoom.start_X = rand.Next(0, MAX_TILES_X);
-                newRoom.start_Y = rand.Next(0, MAX_TILES_Y);
-                newRoom.Size_X = rand.Next(3, 6);
-                newRoom.Size_Y = rand.Next(3, 6);
-                isValid = CheckLocation(newRoom.Size_X, newRoom.Size_Y, newRoom.start_X, newRoom.start_Y, newRoom._room, GameBoard);
+                ClearArray(newArray);
+                new_start_X = rand.Next(0, MAX_TILES_X);
+                new_start_Y = rand.Next(0, MAX_TILES_Y);
+                new_Size_X = rand.Next(3, 6);
+                new_Size_Y = rand.Next(3, 6);
+
+                isValid = CheckLocation(new_Size_X, new_Size_Y, new_start_X, new_start_Y, newArray, GameBoard);
                 if (isValid)
                 {
-                    finishedRooms++;
-                    //Console.WriteLine("This is how many ROOMS");
-                    roomList.Add(newRoom);
+                    ClearArray(newRoom._room);
+                    for(int i = 0; i < MAX_TILES_X; i++)
+                    {
+                        for (int j = 0; j < MAX_TILES_Y; j++)
+                        {
+                            newRoom._room[i,j] = newArray[i,j];
+                        }
+                    }
+                    
+                    newRoom.start_X = new_start_X;
+                    newRoom.start_Y = new_start_Y;
+                    newRoom.Size_X = new_Size_X;
+                    newRoom.Size_Y = new_Size_Y;
+                    Console.WriteLine(newRoom.start_X);
                     SetGameBoard(newRoom, GameBoard, content);
+                    finishedRooms++;
+                   
                 }
                 else
                 {
-                    //Console.WriteLine("Invalid ROOM");
+                    Console.WriteLine("Loading");
+                    loadingTimer++;
+                    if (loadingTimer >= 30)
+                    {
+                        reLoad();
+                        finishedRooms = 0;
+                        loadingTimer = 0;
+                    }
                 }
  
             }
 
             
+        }
+        public void reLoad()
+        {
+            ClearArray(GameBoard);
+            ClearArray(newRoom._room);
         }
         public override void Update(GameTime gameTime)
         {
@@ -107,14 +141,16 @@ namespace RandomWorld
                 {
                     for (int y = start_pos_Y; y <= start_pos_Y + size_y; y++)
                     {
-                        if (gameboard[x, y] != null)
+                        if (gameboard[x, y] != null) //Prevent Overlapping
                         {
+                            Console.WriteLine("Returned false : GameBoard Occupied");
                             return false;
                         }
                         else if (array[x, y] != 0)
                         {
+                            Console.WriteLine("Returned false : Array Occupied");
                             return false;
-                        }
+                        } 
                         else
                         {
                             array[x, y] = 1;
@@ -135,6 +171,16 @@ namespace RandomWorld
                 for (int j = 0; j < MAX_TILES_Y; j++)
                 {
                     array[i, j] = 0;
+                }
+            }
+        }
+        private void ClearArray(Sprite[,] array)
+        {
+            for (int i = 0; i < MAX_TILES_X; i++)
+            {
+                for (int j = 0; j < MAX_TILES_Y; j++)
+                {
+                    array[i, j] = null;
                 }
             }
         }

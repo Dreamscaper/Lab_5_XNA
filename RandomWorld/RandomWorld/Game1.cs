@@ -47,8 +47,9 @@ namespace RandomWorld
          
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
-            //Level1 = new Level();
-            //LoadContent();
+            //Following two lines used for testing
+            //Level1.reLoad();
+            //Level1.Load(Content);
             base.Update(gameTime);
         }
 
